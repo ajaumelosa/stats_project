@@ -1,0 +1,558 @@
+---
+title: "Does musical training positively impact students' academic performance at school?"
+subtitle: "Data Science for Linguists"
+author: "Alejandro Jaume-Losa"
+institute: "Department of Spanish and Portuguese, Rutgers University"
+date: "2023/05/1"
+output: 
+  xaringan::moon_reader:
+    css: [default, hygge, rutgers, rutgers-fonts]
+---
+
+```{r, 'Loaded packages', echo=FALSE, message=FALSE}
+library(papaja)
+library(tinylabels)
+library(ds4ling)
+library(tidyverse)
+library(untidydata)
+library(here)
+library(car)
+library(broom)
+library(emmeans)
+library(lme4)
+library(dplyr)
+library(kableExtra)
+library(gt)
+options(scipen = 99)
+```
+
+# Introduction
+
+* Studying music can bring several cognitive and academic benefits:
+
+  + It can improve language skills, which can be beneficial for second language learning (Delogu et al., 2006; Slevc & Miyake, 2006; Wong & Perrachione, 2007).
+  
+  + It can improve spatial-temporal skills, which are important for math and science reasoning (Hetland, 2000).
+  
+  + It can enhance both working memory and executive function (Bugos et al., 2007; Degé et al., 2011; Moreno et al., 2011).
+  
+  + It can also enhance creativity.
+  
+* However, the relationship between music and school grades still remains unclear.
+
+* **Objective**: to explore the impact that studying music may or may not have on school grades.
+
+---
+
+# Research question
+
+* To what extent does studying music positively impact the students' academic performance at school?
+
+---
+
+# Method
+
+* We compared the academic performance of a total of **180 students** (age 15) in their junior year of high school. Two groups:
+
+  + First group: N=90 (45 females). Students who have had, at least, *six* years of musical training at the Professional Conservatory of Music and Dance of Palma de Mallorca (Balearic Islands, Spain).
+  
+  + Second group: N=90 (45 females). Students who have never had any professional musical training.
+
+* Data were collected through a survey specifically designed for this study. They survey asked participants to indicate the grade that they obtained in the mandatory subjects they took during their third year of high school (1-10).
+
+* Data were collected from six different institutions: Conservatory of Music and Dance, IES Madina Mayurqa, IES Son Rullan, IES Son Pacs, IES Josep Maria Llompart, and Colegio San Vicente de Paul.
+
+---
+
+# Results
+
+* Dataset:
+
+```{r, echo=FALSE, message=FALSE, fig.align='left'}
+
+my_data_tidy_proyecto <- read_csv("../data/data_tidy_proyecto.csv")
+
+my_data_tidy_proyecto %>%
+  head(cex = 0.1) %>%
+  gt() %>%
+  tab_header(
+    title = md("**Dataset**")
+  ) %>%
+  tab_options(
+    table.font.size = 13
+  ) %>% opt_table_font(
+    font = list(
+      google_font(name = "Merriweather")
+    )
+  )
+  
+
+
+```
+
+---
+
+# Results
+
+* Descriptive statistics
+
+```{r, echo=FALSE, message=FALSE}
+
+my_data_tidy_proyecto %>%
+  group_by(., conservatorio, sex) %>%
+  summarize(., Nat = round(mean(c_nat), digits = 2),
+               Soc = round(mean(c_soc), digits = 2),
+               PE = round(mean(ef_fi), digits = 2),
+               Span = round(mean(leng_cas), digits = 2),
+               Cat = round(mean(leng_cat), digits = 2),
+               Eng = round(mean(leng_est), digits = 2),
+               Mat = round(mean(mat), digits = 2),
+               Art = round(mean(plast), digits = 2),
+               Tecn = round(mean(tecn), digits = 2)) %>%
+  gt() %>% 
+  tab_header(
+    title = md("**Average grade by subject**")
+  ) %>%
+  tab_options(
+    table.font.size = 20) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ),
+    locations = cells_body(
+      columns = Nat,
+      rows = Nat >= 7.80)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Soc,
+      rows = Soc >= 7.60)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = PE,
+      rows = PE >= 8.20)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Span,
+      rows = Span >= 7.40)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Cat,
+      rows = Cat >= 7.30)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Eng,
+      rows = Eng >= 7.78)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Mat,
+      rows = Mat >= 7.90)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Art,
+      rows = Art >= 8.20)) %>%
+  tab_style(
+    style = list(
+      cell_text(weight = "bold")
+    ), locations = cells_body(
+      columns = Tecn,
+      rows = Tecn >= 8)) %>%
+  opt_table_font(
+    font = list(
+      google_font(name = "Merriweather")
+    )
+  )
+
+
+```
+
+
+---
+
+#Plots
+
+* Natural sciences:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = c_nat, color = sex)) + 
+  geom_boxplot() 
+
+```
+
+---
+#Plots
+
+* Social sciences:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = c_soc, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Physical education:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = ef_fi, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Spanish:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = leng_cas, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Catalan:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = leng_cat, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* English:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = leng_est, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Math:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = mat, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Art:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = plast, color = sex)) + 
+  geom_boxplot()
+```
+---
+
+#Plots
+
+* Technology:
+
+```{r, echo=FALSE, message=FALSE, fig.align='right', fig.width=7, fig.height=6.5}
+my_data_tidy_proyecto %>%
+  ggplot(aes(x = conservatorio, y = tecn, color = sex)) + 
+  geom_boxplot()
+```
+
+---
+
+# Models
+
+Linear model: **natural sciences**
+
+```{r, echo=FALSE}
+mod_null_c_nat <- lm(c_nat ~ 1, data = my_data_tidy_proyecto)
+
+mod1_c_nat <- lm(c_nat ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_c_nat <- lm(c_nat ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_c_nat <- lm(c_nat ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_c_nat)
+
+```
+
+---
+
+# Models
+
+Nested model comparisons: **natural sciences**
+
+```{r, echo=FALSE}
+anova(mod_null_c_nat, mod1_c_nat, mod2_c_nat, mod_int_c_nat)
+```
+
+---
+
+# Models
+
+Linear model: **social sciences**
+
+```{r, echo=FALSE}
+mod_null_c_soc <- lm(c_soc ~ 1, data = my_data_tidy_proyecto)
+
+mod1_c_soc <- lm(c_soc ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_c_soc <- lm(c_soc ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_c_soc <- lm(c_soc ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_c_soc)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **social sciences**
+
+```{r, echo=FALSE}
+anova(mod_null_c_soc, mod1_c_soc, mod2_c_soc, mod_int_c_soc)
+
+```
+
+---
+
+# Models
+
+Linear model: **physical education**
+
+```{r, echo=FALSE}
+mod_null_ef_fi <- lm(ef_fi ~ 1, data = my_data_tidy_proyecto)
+
+mod1_ef_fi <- lm(ef_fi ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_ef_fi <- lm(ef_fi ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_ef_fi <- lm(ef_fi ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_ef_fi)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **physical education**
+
+```{r, echo=FALSE}
+anova(mod_null_ef_fi, mod1_ef_fi, mod2_ef_fi, mod_int_ef_fi)
+
+```
+
+---
+
+# Models
+
+Linear model: **Spanish**
+
+```{r, echo=FALSE}
+mod_null_leng_cas <- lm(leng_cas ~ 1, data = my_data_tidy_proyecto)
+
+mod1_leng_cas <- lm(leng_cas ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_leng_cas <- lm(leng_cas ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_leng_cas <- lm(leng_cas ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_leng_cas)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **Spanish**
+
+```{r, echo=FALSE}
+anova(mod_null_leng_cas, mod1_leng_cas, mod2_leng_cas, mod_int_leng_cas)
+
+```
+
+---
+
+# Models
+
+Linear model: **Catalan**
+
+```{r, echo=FALSE}
+mod_null_leng_cat <- lm(leng_cat ~ 1, data = my_data_tidy_proyecto)
+
+mod1_leng_cat <- lm(leng_cat ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_leng_cat <- lm(leng_cat ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_leng_cat <- lm(leng_cat ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_leng_cat)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **Catalan**
+
+```{r, echo=FALSE}
+anova(mod_null_leng_cat, mod1_leng_cat, mod2_leng_cat, mod_int_leng_cat)
+
+```
+
+---
+
+# Models
+
+Linear model: **English**
+
+```{r, echo=FALSE}
+mod_null_leng_est <- lm(leng_est ~ 1, data = my_data_tidy_proyecto)
+
+mod1_leng_est <- lm(leng_est ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_leng_est <- lm(leng_est ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_leng_est <- lm(leng_est ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_leng_est)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **English**
+
+```{r, echo=FALSE}
+anova(mod_null_leng_est, mod1_leng_est, mod2_leng_est, mod_int_leng_est)
+
+```
+
+---
+
+# Models
+
+Linear model: **math**
+
+```{r, echo=FALSE}
+mod_null_mat <- lm(mat ~ 1, data = my_data_tidy_proyecto)
+
+mod1_mat <- lm(mat ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_mat <- lm(mat ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_mat <- lm(mat ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_mat)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **math**
+
+```{r, echo=FALSE}
+anova(mod_null_mat, mod1_mat, mod2_mat, mod_int_mat)
+
+```
+
+---
+
+# Models
+
+Linear model: **art**
+
+```{r, echo=FALSE}
+mod_null_plast <- lm(plast ~ 1, data = my_data_tidy_proyecto)
+
+mod1_plast <- lm(plast ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_plast <- lm(plast ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_plast <- lm(plast ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_plast)
+```
+
+---
+
+# Models
+
+Nested model comparisons: **art**
+
+```{r, echo=FALSE}
+anova(mod_null_plast, mod1_plast, mod2_plast, mod_int_plast)
+
+```
+
+---
+
+# Models
+
+Linear model: **technology**
+
+```{r, echo=FALSE}
+
+mod_null_tecn <- lm(tecn ~ 1, data = my_data_tidy_proyecto)
+
+mod1_tecn <- lm(tecn ~ 1 + conservatorio, data = my_data_tidy_proyecto)
+
+mod2_tecn <- lm(tecn ~ 1 + conservatorio + sex, data = my_data_tidy_proyecto)
+
+mod_int_tecn <- lm(tecn ~ 1 + conservatorio + sex + conservatorio:sex, data = my_data_tidy_proyecto)
+
+summary(mod_int_tecn)
+
+```
+
+---
+
+# Models
+
+Nested model comparisons: **technology**
+
+```{r, echo=FALSE}
+anova(mod_null_tecn, mod1_tecn, mod2_tecn, mod_int_tecn)
+
+```
+
+---
+
+# Conclusions
+
+* Students with musical training have higher average grades in all subjects
+
+* The difference in the average scores between both groups was significant in the following subjects: natural sciences, Spanish, Catalan, math, art, and technology.
+
+* The difference between males and females was only significant in the following subjects: Spanish, art, and technology.
+
+* Overall, musical training seems to positively impact students' academic performance at school.
+
