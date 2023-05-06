@@ -1,6 +1,6 @@
 ---
 title             : "Does musical training positively impact students' academic performance at school?"
-shorttitle.       : "Data Science for Linguists"
+shorttitle        : "Data Science for Linguists"
 
 author: 
   - name          : "Alejandro Jaume-Losa"
