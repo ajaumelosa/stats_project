@@ -741,7 +741,15 @@ r_refs(file = "r-references-paper.bib")
 
 # Apendices
 
-![encuesta1](./images/encuesta_1.png)
+```{r}
+#\ label: img1
+knitr::include_graphics("./images/encuesta_1.png")
+```
 
-![encuesta1](./images/encuesta_2.png)
+```{r}
+#\ label: img2
+knitr::include_graphics("./images/encuesta_2.png")
+```
+
+
 
