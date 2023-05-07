@@ -1,0 +1,3 @@
+"0","my_data_tidy_proyecto %>%"
+"0","  ggplot(aes(x = conservatorio, y = c_soc, color = sex)) + "
+"0","  geom_boxplot()"
